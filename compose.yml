@@ -1,0 +1,23 @@
+name: postgres-18
+
+services:
+  postgres-18:
+    build:
+      context: .
+    container_name: postgres-18
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - "5433:5432"
+    command: ["postgres", "-c", "config_file=/etc/postgresql/postgresql.conf"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U quipux -d quipux"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    volumes:
+      - postgres_18_data:/var/lib/postgresql
+
+volumes:
+  postgres_18_data:
