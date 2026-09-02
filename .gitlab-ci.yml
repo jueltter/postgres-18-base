@@ -17,9 +17,14 @@ build_and_push:
     DOCKER_HOST: "tcp://docker:2375"
     DOCKER_TLS_CERTDIR: ""
     IMAGE_NAME: $REGISTRY_DOMAIN/development/infrastructure/postgres-18-base/postgres-18-base
+    PUBLIC_IMAGE_NAME: $DOCKER_HUB_USER/postgres-18-base
   before_script:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
   script:
     # Build with Dockerfile and push
     - docker build --provenance=false --platform linux/amd64 -t $IMAGE_NAME:$CI_COMMIT_TAG .
     - docker push $IMAGE_NAME:$CI_COMMIT_TAG
+    # Push to docker hub
+    - echo "$DOCKER_HUB_PASSWORD" | docker login -u "$DOCKER_HUB_USER" --password-stdin
+    - docker tag $IMAGE_NAME:$CI_COMMIT_TAG $PUBLIC_IMAGE_NAME:$CI_COMMIT_TAG
+    - docker push $PUBLIC_IMAGE_NAME:$CI_COMMIT_TAG
