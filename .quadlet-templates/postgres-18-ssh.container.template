@@ -1,0 +1,18 @@
+# ~/.config/containers/systemd/postgres-18-ssh.container
+
+[Unit]
+Description=PostgreSQL SSH Administration Sidecar
+After=postgres-18.service
+Requires=postgres-18.service
+
+[Container]
+ContainerName=postgres-18-ssh
+Image=$REGISTRY_DOMAIN/development/infrastructure/postgres-ssh-sidecar/postgres-ssh-sidecar:latest
+Network=container:postgres-18
+Volume=postgres-18-backups.volume:/backups
+
+[Service]
+Restart=always
+
+[Install]
+WantedBy=default.target

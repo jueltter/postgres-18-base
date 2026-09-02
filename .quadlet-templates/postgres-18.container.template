@@ -1,0 +1,32 @@
+# ~/.config/containers/systemd/postgres-18.container
+
+[Unit]
+Description=postgres-18 container
+After=network-online.target
+
+[Container]
+ContainerName=postgres-18
+Image=$REGISTRY_DOMAIN/development/infrastructure/postgres-18-base/postgres-18-base:18
+PublishPort=5432:5432
+PublishPort=2222:22
+EnvironmentFile=%h/.config/containers/systemd/postgres-18/.env
+Exec=postgres -c config_file=/etc/postgresql/postgresql.conf
+Volume=postgres-18-data.volume:/var/lib/postgresql
+Volume=postgres-18-backups.volume:/backups
+# Force the log driver to a file-based format so the size limits apply correctly
+LogDriver=k8s-file
+# Pass the log rotation limits directly to the underlying podman run command
+PodmanArgs=--log-opt max-size=50m --log-opt max-file=3
+
+
+# Healthcheck configuration
+HealthCmd="pg_isready -U postgres -d postgres"
+HealthInterval=30s
+HealthTimeout=10s
+HealthRetries=3
+
+[Service]
+Restart=always
+
+[Install]
+WantedBy=default.target
